@@ -14,10 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Set up Python virtualenv
         run: |
-          python3 -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then python3 -m pip install -r requirements.txt; fi
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
   docker-build-push:
     needs: build-and-test
