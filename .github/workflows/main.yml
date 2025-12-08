@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build-and-test:
@@ -57,3 +57,24 @@ jobs:
           docker rm my-app-container || true
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
           docker run -d -p 8081:80 --name my-app-container ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+
+  deploy-to-k8s:
+    needs: docker-build-push
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show current kube context
+        run: |
+          kubectl config current-context
+          kubectl get nodes
+
+      - name: Deploy to local Minikube
+        run: |
+          # обновляем image в deployment.yml на актуальный тег
+          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest|g" k8s/deployment.yml
+          kubectl apply -f k8s/deployment.yml
+          kubectl apply -f k8s/service.yml
+          kubectl rollout status deployment/my-app
