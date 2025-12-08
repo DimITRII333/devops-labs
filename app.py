@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+rom fastapi import FastAPI
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello from FastAPI in Docker and it addded from Workflow!!!"}
+    return {"message": "Hello from FastAPI in Cuber with Worfkflow)))"}
